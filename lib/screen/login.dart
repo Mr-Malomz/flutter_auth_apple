@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_auth_apple/auth_service.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -8,6 +9,29 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool _isLoading = false;
+
+  _loginWithApple() {
+    setState(() {
+      _isLoading = true;
+    });
+    AuthService()
+        .loginWithApple()
+        .then((value) => {
+              setState(() {
+                _isLoading = false;
+              })
+            })
+        .catchError((e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error login into Apple!')),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,9 +54,11 @@ class _LoginState extends State<Login> {
               width: double.infinity,
               height: 45.0,
               child: TextButton(
-                onPressed: () {
-                  //to do
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        _loginWithApple();
+                      },
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.black),
